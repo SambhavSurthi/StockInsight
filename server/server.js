@@ -28,6 +28,11 @@ mongoose
   .then(() => console.log("MongoDB Connected"))
   .catch((err) => console.error("MongoDB Connection Error:", err));
 
+// Public health check (no auth middleware applied)
+app.get("/health", (req, res) => {
+  res.json({ status: "ok", message: "Server is healthy" });
+});
+
 app.get("/api/health", (req, res) => {
   res.json({ status: "ok", message: "Server is running" });
 });
