@@ -13,10 +13,8 @@ const Categories = () => {
   const [loading, setLoading] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const [editName, setEditName] = useState('');
-  const [editColor, setEditColor] = useState('#3b82f6');
   const [showAddForm, setShowAddForm] = useState(false);
   const [newCategoryName, setNewCategoryName] = useState('');
-  const [newCategoryColor, setNewCategoryColor] = useState('#3b82f6');
   const [showCategoryChangeModal, setShowCategoryChangeModal] = useState(false);
   const [selectedCompany, setSelectedCompany] = useState(null);
 
@@ -104,7 +102,6 @@ const Categories = () => {
         },
         body: JSON.stringify({
           name: newCategoryName.trim(),
-          color: newCategoryColor,
         }),
       });
 
@@ -112,7 +109,6 @@ const Categories = () => {
       if (res.ok) {
         toast.success('Category created successfully');
         setNewCategoryName('');
-        setNewCategoryColor('#3b82f6');
         setShowAddForm(false);
         fetchCategories();
       } else {
@@ -126,7 +122,6 @@ const Categories = () => {
   const handleEdit = (category) => {
     setEditingId(category._id);
     setEditName(category.name);
-    setEditColor(category.color || '#3b82f6');
   };
 
   const handleUpdate = async (categoryId) => {
@@ -144,7 +139,6 @@ const Categories = () => {
         },
         body: JSON.stringify({
           name: editName.trim(),
-          color: editColor,
         }),
       });
 
@@ -231,17 +225,6 @@ const Categories = () => {
     return { portfolio: portfolioCompanies, future: futureCompanies };
   };
 
-  const presetColors = [
-    '#3b82f6', // blue
-    '#10b981', // green
-    '#f59e0b', // amber
-    '#ef4444', // red
-    '#8b5cf6', // purple
-    '#ec4899', // pink
-    '#06b6d4', // cyan
-    '#84cc16', // lime
-  ];
-
   if (loading && categories.length === 0) {
     return (
       <div className="mx-auto flex max-w-xl flex-col items-center justify-center gap-2 py-12 text-center">
@@ -284,30 +267,9 @@ const Categories = () => {
                 required
               />
             </div>
-            <div>
-              <label className="mb-1 block text-sm font-medium">Color</label>
-              <div className="flex items-center gap-2">
-                <input
-                  type="color"
-                  value={newCategoryColor}
-                  onChange={(e) => setNewCategoryColor(e.target.value)}
-                  className="h-10 w-20 rounded-lg border border-input cursor-pointer"
-                />
-                <div className="flex gap-1.5">
-                  {presetColors.map((color) => (
-                    <button
-                      key={color}
-                      type="button"
-                      onClick={() => setNewCategoryColor(color)}
-                      className={`h-8 w-8 rounded-full border-2 transition ${
-                        newCategoryColor === color ? 'border-foreground scale-110' : 'border-input'
-                      }`}
-                      style={{ backgroundColor: color }}
-                    />
-                  ))}
-                </div>
-              </div>
-            </div>
+            <p className="text-xs text-muted-foreground">
+              Color will be assigned automatically to keep categories distinct.
+            </p>
             <div className="flex gap-2">
               <button
                 type="submit"
@@ -320,7 +282,6 @@ const Categories = () => {
                 onClick={() => {
                   setShowAddForm(false);
                   setNewCategoryName('');
-                  setNewCategoryColor('#3b82f6');
                 }}
                 className="rounded-lg border border-input bg-background px-4 py-2 text-sm font-medium hover:bg-accent"
               >
@@ -364,26 +325,12 @@ const Categories = () => {
                     </div>
                     <div>
                       <label className="mb-1 block text-sm font-medium">Color</label>
-                      <div className="flex items-center gap-2">
-                        <input
-                          type="color"
-                          value={editColor}
-                          onChange={(e) => setEditColor(e.target.value)}
-                          className="h-10 w-20 rounded-lg border border-input cursor-pointer"
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                        <div
+                          className="h-6 w-6 rounded-full border border-input"
+                          style={{ backgroundColor: category.color || '#3b82f6' }}
                         />
-                        <div className="flex gap-1.5">
-                          {presetColors.map((color) => (
-                            <button
-                              key={color}
-                              type="button"
-                              onClick={() => setEditColor(color)}
-                              className={`h-8 w-8 rounded-full border-2 transition ${
-                                editColor === color ? 'border-foreground scale-110' : 'border-input'
-                              }`}
-                              style={{ backgroundColor: color }}
-                            />
-                          ))}
-                        </div>
+                        <span>Assigned automatically</span>
                       </div>
                     </div>
                     <div className="flex gap-2">

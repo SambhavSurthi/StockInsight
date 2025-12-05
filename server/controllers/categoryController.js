@@ -2,6 +2,25 @@ const Category = require('../models/Category');
 const Holding = require('../models/Holding');
 const FutureAnalysisItem = require('../models/FutureAnalysisItem');
 
+// Generate a unique random hex color for the user
+const generateUniqueColor = async (userId) => {
+  const existingColors = await Category.find({ userId }).distinct('color');
+  const usedColors = new Set(existingColors.filter(Boolean).map((c) => c.toLowerCase()));
+
+  const randomHex = () => `#${Math.floor(Math.random() * 0xffffff).toString(16).padStart(6, '0')}`;
+
+  for (let i = 0; i < 100; i += 1) {
+    const color = randomHex();
+    if (!usedColors.has(color.toLowerCase())) {
+      return color;
+    }
+  }
+
+  // Fallback: append timestamp-derived fragment to guarantee uniqueness
+  const fallback = `#${(Math.floor(Math.random() * 0xffffff) ^ Date.now()).toString(16).padStart(6, '0')}`;
+  return fallback.slice(0, 7);
+};
+
 // Get all categories for a user
 exports.getCategories = async (req, res) => {
   try {
@@ -17,7 +36,7 @@ exports.getCategories = async (req, res) => {
 exports.createCategory = async (req, res) => {
   try {
     const userId = req.user.id;
-    const { name, color, parentId } = req.body;
+    const { name, parentId } = req.body;
 
     if (!name || name.trim() === '') {
       return res.status(400).json({ message: 'Category name is required' });
@@ -37,10 +56,12 @@ exports.createCategory = async (req, res) => {
       }
     }
 
+    const color = await generateUniqueColor(userId);
+
     const category = new Category({
       userId,
       name: name.trim(),
-      color: color || '#3b82f6',
+      color,
       parentId: parentId || null,
     });
 
@@ -78,10 +99,6 @@ exports.updateCategory = async (req, res) => {
         return res.status(400).json({ message: 'Category with this name already exists' });
       }
       category.name = name.trim();
-    }
-
-    if (color) {
-      category.color = color;
     }
 
     if (parentId !== undefined) {
