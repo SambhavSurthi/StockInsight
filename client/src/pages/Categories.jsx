@@ -235,7 +235,7 @@ const Categories = () => {
   }
 
   return (
-    <div className="mx-auto flex max-w-xl flex-col gap-4">
+    <div className="mx-auto flex w-full max-w-xl flex-col gap-4 lg:max-w-7xl lg:gap-6">
       <div className="flex items-center justify-between gap-2">
         <div className="space-y-1">
           <h1 className="text-xl font-semibold sm:text-2xl">Categories</h1>
@@ -254,7 +254,7 @@ const Categories = () => {
       </div>
 
       {showAddForm && (
-        <div className="rounded-xl border bg-card p-4 shadow-sm">
+        <div className="rounded-xl border bg-card p-4 shadow-sm lg:max-w-md lg:mx-auto lg:w-full">
           <form onSubmit={handleCreate} className="space-y-3">
             <div>
               <label className="mb-1 block text-sm font-medium">Category Name</label>
@@ -301,7 +301,7 @@ const Categories = () => {
           </p>
         </div>
       ) : (
-        <div className="space-y-3">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {categories.map((category) => {
             const { portfolio: portfolioCompanies, future: futureCompanies } = getCompaniesInCategory(category._id);
             const totalCompanies = portfolioCompanies.length + futureCompanies.length;
@@ -309,7 +309,7 @@ const Categories = () => {
             return (
               <div
                 key={category._id}
-                className="rounded-xl border bg-card p-4 shadow-sm"
+                className="rounded-xl border bg-card p-4 shadow-sm flex flex-col"
               >
                 {editingId === category._id ? (
                   <div className="space-y-3">
@@ -383,7 +383,7 @@ const Categories = () => {
                     </div>
 
                     {totalCompanies > 0 && (
-                      <div className="mt-3 space-y-2 border-t pt-3">
+                      <div className="mt-3 space-y-2 border-t pt-3 flex-1">
                         {portfolioCompanies.length > 0 && (
                           <div>
                             <p className="mb-1 text-xs font-medium text-muted-foreground">Portfolio:</p>

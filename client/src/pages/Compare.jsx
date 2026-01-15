@@ -308,165 +308,8 @@ const Compare = () => {
     });
   }, [companies, prices, dataViewType]);
 
-  if (companies.length === 0) {
-    return (
-      <div className="mx-auto flex max-w-xl flex-col gap-4">
-        <div className="space-y-1">
-          <h1 className="text-xl font-semibold sm:text-2xl">Make Comparison</h1>
-          <p className="text-xs text-muted-foreground sm:text-sm">
-            Select 2-3 companies from Portfolio or Future Analysis to compare.
-          </p>
-        </div>
-
-        <div className="flex flex-wrap gap-2">
-          <button
-            type="button"
-            onClick={() => setShowLoadModal(true)}
-            className="inline-flex items-center justify-center gap-1.5 rounded-full border border-input bg-background px-4 py-2 text-sm font-medium shadow-sm hover:bg-accent"
-          >
-            <FolderOpen className="h-4 w-4" />
-            Load Saved
-          </button>
-          <button
-            type="button"
-            onClick={() => setShowCategoryModal(true)}
-            className="inline-flex items-center justify-center gap-1.5 rounded-full border border-input bg-background px-4 py-2 text-sm font-medium shadow-sm hover:bg-accent"
-          >
-            <Folder className="h-4 w-4" />
-            Compare Category
-          </button>
-        </div>
-
-        {/* Load Modal */}
-        {showLoadModal && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-            <div className="mx-4 w-full max-w-md rounded-xl border bg-card shadow-lg">
-              <div className="flex items-center justify-between border-b px-4 py-3">
-                <h2 className="text-lg font-semibold">Load Saved Comparison</h2>
-                <button
-                  type="button"
-                  onClick={() => setShowLoadModal(false)}
-                  className="rounded-full p-1 hover:bg-accent"
-                >
-                  <X className="h-4 w-4" />
-                </button>
-              </div>
-              <div className="max-h-96 overflow-y-auto p-4">
-                {savedComparisons.length === 0 ? (
-                  <p className="text-center text-sm text-muted-foreground py-8">
-                    No saved comparisons
-                  </p>
-                ) : (
-                  <div className="space-y-2">
-                    {savedComparisons.map((comp) => (
-                      <div
-                        key={comp._id}
-                        className="flex items-center justify-between rounded-lg border p-3"
-                      >
-                        <div>
-                          <p className="font-medium">{comp.name}</p>
-                          <p className="text-xs text-muted-foreground">
-                            {comp.companyNames.join(', ')}
-                          </p>
-                        </div>
-                        <div className="flex gap-1">
-                          <button
-                            type="button"
-                            onClick={() => handleLoad(comp)}
-                            className="rounded-lg bg-primary px-3 py-1 text-xs text-primary-foreground hover:bg-primary/90"
-                          >
-                            Load
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => handleDeleteSaved(comp._id)}
-                            className="rounded-lg p-1 text-destructive hover:bg-destructive/10"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </button>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Category Modal */}
-        {showCategoryModal && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-            <div className="mx-4 w-full max-w-md rounded-xl border bg-card shadow-lg">
-              <div className="flex items-center justify-between border-b px-4 py-3">
-                <h2 className="text-lg font-semibold">Compare by Category</h2>
-                <button
-                  type="button"
-                  onClick={() => setShowCategoryModal(false)}
-                  className="rounded-full p-1 hover:bg-accent"
-                >
-                  <X className="h-4 w-4" />
-                </button>
-              </div>
-              <div className="max-h-96 overflow-y-auto p-4">
-                {categories.length === 0 ? (
-                  <p className="text-center text-sm text-muted-foreground py-8">
-                    No categories available
-                  </p>
-                ) : (
-                  <div className="space-y-2">
-                    {categories.map((category) => {
-                      const categoryCompanies = [
-                        ...portfolio.filter(
-                          (c) => (c.categoryId?._id || c.categoryId) === category._id
-                        ),
-                        ...futureAnalysis.filter(
-                          (c) => (c.categoryId?._id || c.categoryId) === category._id
-                        ),
-                      ];
-                      return (
-                        <button
-                          key={category._id}
-                          type="button"
-                          onClick={() => handleCompareCategory(category._id)}
-                          disabled={categoryCompanies.length < 2 || categoryCompanies.length > 3}
-                          className="w-full rounded-lg border p-3 text-left disabled:opacity-50 disabled:cursor-not-allowed hover:bg-accent"
-                        >
-                          <div className="flex items-center gap-2">
-                            <div
-                              className="h-4 w-4 rounded-full"
-                              style={{ backgroundColor: category.color || '#3b82f6' }}
-                            />
-                            <span className="font-medium">{category.name}</span>
-                            <span className="text-xs text-muted-foreground">
-                              ({categoryCompanies.length} companies)
-                            </span>
-                          </div>
-                          {categoryCompanies.length < 2 && (
-                            <p className="mt-1 text-xs text-muted-foreground">
-                              Need at least 2 companies
-                            </p>
-                          )}
-                          {categoryCompanies.length > 3 && (
-                            <p className="mt-1 text-xs text-muted-foreground">
-                              Too many companies (max 3)
-                            </p>
-                          )}
-                        </button>
-                      );
-                    })}
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-        )}
-      </div>
-    );
-  }
-
   return (
-    <div className="mx-auto flex max-w-xl flex-col gap-4">
+    <div className="mx-auto flex w-full max-w-xl flex-col gap-4 lg:max-w-7xl lg:gap-6">
       <div className="flex items-center justify-between gap-2">
         <div className="space-y-1">
           <h1 className="text-xl font-semibold sm:text-2xl">Comparison</h1>
@@ -481,7 +324,7 @@ const Compare = () => {
             className="inline-flex items-center justify-center gap-1.5 rounded-full border border-input bg-background px-3 py-1.5 text-xs font-medium shadow-sm hover:bg-accent"
           >
             <Save className="h-3.5 w-3.5" />
-            Save
+            <span className="hidden sm:inline">Save</span>
           </button>
           <button
             type="button"
@@ -489,73 +332,75 @@ const Compare = () => {
             className="inline-flex items-center justify-center gap-1.5 rounded-full border border-input bg-background px-3 py-1.5 text-xs font-medium shadow-sm hover:bg-accent"
           >
             <FolderOpen className="h-3.5 w-3.5" />
-            Load
+            <span className="hidden sm:inline">Load</span>
           </button>
         </div>
       </div>
 
-      <div className="flex flex-wrap items-center gap-2">
-        <div className="inline-flex rounded-full border border-input bg-muted/60 p-0.5 text-xs">
-          {[7, 15, 30].map((d) => (
-            <button
-              key={d}
-              type="button"
-              onClick={() => {
-                setDays(d);
-                setCustomDays('');
+      <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+        <div className="flex flex-wrap items-center gap-2">
+          <div className="inline-flex rounded-full border border-input bg-muted/60 p-0.5 text-xs">
+            {[7, 15, 30].map((d) => (
+              <button
+                key={d}
+                type="button"
+                onClick={() => {
+                  setDays(d);
+                  setCustomDays('');
+                }}
+                className={`rounded-full px-3 py-1 transition ${
+                  days === d && !customDays
+                    ? 'bg-background text-foreground shadow-sm'
+                    : 'text-muted-foreground hover:bg-accent/60'
+                }`}
+              >
+                {d}d
+              </button>
+            ))}
+          </div>
+          <div className="flex items-center gap-1.5">
+            <input
+              type="number"
+              value={customDays}
+              onChange={(e) => {
+                const val = e.target.value;
+                setCustomDays(val);
+                if (val && !isNaN(val) && Number(val) > 0) {
+                  setDays(0);
+                }
               }}
-              className={`rounded-full px-3 py-1 transition ${
-                days === d && !customDays
-                  ? 'bg-background text-foreground shadow-sm'
-                  : 'text-muted-foreground hover:bg-accent/60'
-              }`}
-            >
-              {d}d
-            </button>
-          ))}
+              placeholder="Custom"
+              min="7"
+              max="365"
+              className="h-7 w-20 rounded-full border border-input bg-background px-3 text-xs text-center outline-none ring-offset-background placeholder:text-muted-foreground focus:border-primary focus:ring-2 focus:ring-primary/40"
+            />
+            {customDays && <span className="text-xs text-muted-foreground">days</span>}
+          </div>
+          <button
+            type="button"
+            onClick={fetchPrices}
+            disabled={loading}
+            className="inline-flex items-center justify-center gap-1.5 rounded-full bg-primary px-3 py-1 text-xs font-medium text-primary-foreground shadow hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed sm:text-sm"
+          >
+            {loading ? (
+              <>
+                <svg className="h-3 w-3 animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                Refreshing...
+              </>
+            ) : (
+              'Refresh'
+            )}
+          </button>
         </div>
-        <div className="flex items-center gap-1.5">
-          <input
-            type="number"
-            value={customDays}
-            onChange={(e) => {
-              const val = e.target.value;
-              setCustomDays(val);
-              if (val && !isNaN(val) && Number(val) > 0) {
-                setDays(0);
-              }
-            }}
-            placeholder="Custom"
-            min="7"
-            max="365"
-            className="h-7 w-20 rounded-full border border-input bg-background px-3 text-xs text-center outline-none ring-offset-background placeholder:text-muted-foreground focus:border-primary focus:ring-2 focus:ring-primary/40"
-          />
-          {customDays && <span className="text-xs text-muted-foreground">days</span>}
-        </div>
-        <button
-          type="button"
-          onClick={fetchPrices}
-          disabled={loading}
-          className="inline-flex items-center justify-center gap-1.5 rounded-full bg-primary px-3 py-1 text-xs font-medium text-primary-foreground shadow hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed sm:text-sm"
-        >
-          {loading ? (
-            <>
-              <svg className="h-3 w-3 animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-              </svg>
-              Refreshing...
-            </>
-          ) : (
-            'Refresh'
-          )}
-        </button>
-      </div>
 
-      <div className="flex items-center gap-2">
-        <ViewToggle value={view} onChange={setView} />
-        {view === 'graph' && <ChartTypeToggle value={chartType} onChange={setChartType} />}
-        {view === 'table' && <DisplayModeSelector value={displayMode} onChange={setDisplayMode} />}
+        <div className="flex items-center gap-2 self-end lg:self-auto">
+          <ViewToggle value={view} onChange={setView} />
+          {view === 'graph' && <ChartTypeToggle value={chartType} onChange={setChartType} />}
+          {view === 'table' && <DisplayModeSelector value={displayMode} onChange={setDisplayMode} />}
+        </div>
       </div>
 
       <div className="rounded-xl border bg-card p-3 shadow-sm sm:p-4">

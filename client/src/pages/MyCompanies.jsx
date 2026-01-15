@@ -193,7 +193,7 @@ const MyCompanies = () => {
   const totalCompanies = portfolio.length + futureAnalysis.length;
 
   return (
-    <div className="mx-auto flex max-w-xl flex-col gap-4">
+    <div className="mx-auto flex w-full max-w-xl flex-col gap-4 lg:max-w-7xl lg:gap-6">
       <div className="space-y-1">
         <h1 className="text-xl font-semibold sm:text-2xl">My Companies List</h1>
         <p className="text-xs text-muted-foreground sm:text-sm">

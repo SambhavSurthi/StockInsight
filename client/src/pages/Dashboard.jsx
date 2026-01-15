@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Search, TrendingUp, TrendingDown, Building2, Folder, BarChart3, DollarSign, Package } from 'lucide-react';
+import { Search, TrendingUp, TrendingDown, Building2, Folder, BarChart3, DollarSign, Package, RefreshCw } from 'lucide-react';
 import { toast } from 'sonner';
 import { API_ENDPOINTS } from '../config/api';
 import { fetchMultipleCompaniesSequentially } from '../utils/priceDataService';
@@ -27,7 +27,7 @@ const Dashboard = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [navigate]);
 
-  const fetchStats = async () => {
+  const fetchStats = async (forceRefresh = false) => {
     if (!token) return;
     try {
       setLoadingStats(true);
@@ -60,7 +60,9 @@ const Dashboard = () => {
           const prices = await fetchMultipleCompaniesSequentially(
             portfolioData,
             2,
-            token
+            token,
+            null,
+            forceRefresh
           );
           // Ensure data is sorted by date (newest first)
           const sortedPrices = {};
@@ -80,7 +82,9 @@ const Dashboard = () => {
           const prices = await fetchMultipleCompaniesSequentially(
             futureData,
             2,
-            token
+            token,
+            null,
+            forceRefresh
           );
           // Ensure data is sorted by date (newest first)
           const sortedPrices = {};
@@ -305,8 +309,8 @@ const Dashboard = () => {
             )}
           </div>
           {companies && companies.length > 0 ? (
-            <div className="mt-2 space-y-1.5 max-h-32 overflow-y-auto">
-              {companies.slice(0, 3).map((item, idx) => (
+            <div className="mt-2 space-y-1.5 max-h-32 overflow-y-auto no-scrollbar">
+              {companies.map((item, idx) => (
                 <div key={idx} className="text-xs">
                   <p className="font-medium">{item.company.name}</p>
                   {item.profit !== undefined ? (
@@ -316,9 +320,6 @@ const Dashboard = () => {
                   )}
                 </div>
               ))}
-              {companies.length > 3 && (
-                <p className="text-[10px] text-muted-foreground">+{companies.length - 3} more</p>
-              )}
             </div>
           ) : (
             <>
@@ -335,12 +336,23 @@ const Dashboard = () => {
   );
 
   return (
-    <div className="mx-auto flex max-w-xl flex-col gap-4">
-      <div className="space-y-1">
-        <h1 className="text-xl font-semibold sm:text-2xl">Dashboard</h1>
-        <p className="text-xs text-muted-foreground sm:text-sm">
-          Overview of your portfolio and market insights.
-        </p>
+    <div className="mx-auto flex w-full max-w-xl flex-col gap-4 lg:max-w-7xl lg:gap-6">
+      <div className="flex items-start justify-between">
+        <div className="space-y-1">
+          <h1 className="text-xl font-semibold sm:text-2xl">Dashboard</h1>
+          <p className="text-xs text-muted-foreground sm:text-sm">
+            Overview of your portfolio and market insights.
+          </p>
+        </div>
+        <button
+          type="button"
+          onClick={() => fetchStats(true)}
+          disabled={loadingStats}
+          className="inline-flex items-center justify-center gap-1.5 rounded-full bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground shadow hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed sm:text-sm"
+        >
+          <RefreshCw className={`h-3.5 w-3.5 ${loadingStats ? 'animate-spin' : ''}`} />
+          Refresh
+        </button>
       </div>
 
       <div className="rounded-xl border bg-card p-3 shadow-sm sm:p-4">
@@ -392,7 +404,7 @@ const Dashboard = () => {
           <div className="text-sm text-muted-foreground">Loading statistics...</div>
         </div>
       ) : (
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4 lg:gap-4">
           <StatCard
             icon={Building2}
             title="Total Companies (Portfolio)"

@@ -170,7 +170,7 @@ const CompanyDetail = () => {
   const showActionButtons = !from;
 
   return (
-    <div className="mx-auto flex max-w-xl flex-col gap-4">
+    <div className="mx-auto flex w-full max-w-xl flex-col gap-4 lg:max-w-7xl lg:gap-6">
       <div className="flex items-center justify-between gap-2">
         <div className="space-y-1">
           <h1 className="text-lg font-semibold sm:text-xl">{companyName}</h1>
@@ -181,62 +181,66 @@ const CompanyDetail = () => {
         <ViewToggle value={view} onChange={setView} />
       </div>
 
-      <div className="flex flex-wrap items-center gap-2">
-        <span className="text-xs font-medium text-muted-foreground sm:text-sm">
-          Days
-        </span>
-        <div className="inline-flex rounded-full border border-input bg-muted/60 p-0.5 text-xs">
-          {[7, 15, 30].map((d) => (
-            <button
-              key={d}
-              type="button"
-              onClick={() => {
-                setDays(d);
-                setCustomDays('');
+      <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="text-xs font-medium text-muted-foreground sm:text-sm">
+            Days
+          </span>
+          <div className="inline-flex rounded-full border border-input bg-muted/60 p-0.5 text-xs">
+            {[7, 15, 30].map((d) => (
+              <button
+                key={d}
+                type="button"
+                onClick={() => {
+                  setDays(d);
+                  setCustomDays('');
+                }}
+                className={`rounded-full px-3 py-1 transition ${
+                  days === d && !customDays
+                    ? 'bg-background text-foreground shadow-sm'
+                    : 'text-muted-foreground hover:bg-accent/60'
+                }`}
+              >
+                {d}d
+              </button>
+            ))}
+          </div>
+          <div className="flex items-center gap-1.5">
+            <input
+              type="number"
+              value={customDays}
+              onChange={(e) => {
+                const val = e.target.value;
+                setCustomDays(val);
+                if (val && !isNaN(val) && Number(val) > 0) {
+                  setDays(0);
+                }
               }}
-              className={`rounded-full px-3 py-1 transition ${
-                days === d && !customDays
-                  ? 'bg-background text-foreground shadow-sm'
-                  : 'text-muted-foreground hover:bg-accent/60'
-              }`}
-            >
-              {d}d
-            </button>
-          ))}
+              placeholder="Custom"
+              min="7"
+              max="365"
+              className="h-7 w-20 rounded-full border border-input bg-background px-3 text-xs text-center outline-none ring-offset-background placeholder:text-muted-foreground focus:border-primary focus:ring-2 focus:ring-primary/40"
+            />
+            {customDays && (
+              <span className="text-xs text-muted-foreground">days</span>
+            )}
+          </div>
         </div>
-        <div className="flex items-center gap-1.5">
-          <input
-            type="number"
-            value={customDays}
-            onChange={(e) => {
-              const val = e.target.value;
-              setCustomDays(val);
-              if (val && !isNaN(val) && Number(val) > 0) {
-                setDays(0); // Reset preset days when custom is used
-              }
-            }}
-            placeholder="Custom"
-            min="7"
-            max="365"
-            className="h-7 w-20 rounded-full border border-input bg-background px-3 text-xs text-center outline-none ring-offset-background placeholder:text-muted-foreground focus:border-primary focus:ring-2 focus:ring-primary/40"
-          />
-          {customDays && (
-            <span className="text-xs text-muted-foreground">days</span>
+
+        <div className="flex items-center gap-2 self-start lg:self-auto">
+          {view === 'graph' && (
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-medium text-muted-foreground sm:text-sm">
+                Chart Type
+              </span>
+              <ChartTypeToggle value={chartType} onChange={setChartType} />
+            </div>
+          )}
+          {view === 'table' && (
+            <DisplayModeSelector value={displayMode} onChange={setDisplayMode} />
           )}
         </div>
       </div>
-
-      {view === 'graph' && (
-        <div className="flex items-center gap-2">
-          <span className="text-xs font-medium text-muted-foreground sm:text-sm">
-            Chart Type
-          </span>
-          <ChartTypeToggle value={chartType} onChange={setChartType} />
-        </div>
-      )}
-      {view === 'table' && (
-        <DisplayModeSelector value={displayMode} onChange={setDisplayMode} />
-      )}
 
       <div className="rounded-xl border bg-card p-3 shadow-sm sm:p-4">
         {loading ? (

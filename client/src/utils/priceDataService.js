@@ -51,19 +51,25 @@ export const fetchPriceDataWithRetry = async (
   days,
   token,
   maxRetries = 5,
-  retryDelay = 2000
+  retryDelay = 2000,
+  forceRefresh = false
 ) => {
-  // Check cache first
-  const cached = getCachedPriceData(screenerId, days);
-  if (cached) {
-    return cached;
+  // Check client-side cache first (unless forced)
+  if (!forceRefresh) {
+    const cached = getCachedPriceData(screenerId, days);
+    if (cached) {
+      return cached;
+    }
   }
 
   let lastError = null;
   
   for (let attempt = 0; attempt < maxRetries; attempt++) {
     try {
-      const res = await fetch(API_ENDPOINTS.MARKET.COMPANY_CHART(screenerId, days), {
+      // Append force=true if refreshing
+      const url = API_ENDPOINTS.MARKET.COMPANY_CHART(screenerId, days) + (forceRefresh ? '&force=true' : '');
+      
+      const res = await fetch(url, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
@@ -110,7 +116,7 @@ export const fetchPriceDataWithRetry = async (
         // Sort by date (newest first) to ensure consistent ordering
         const sortedRows = rows.sort((a, b) => new Date(b.date) - new Date(a.date));
         
-        // Cache the successful result
+        // Cache the successful result locally too
         setCachedPriceData(screenerId, days, sortedRows);
         return sortedRows;
       }
@@ -142,7 +148,8 @@ export const fetchMultipleCompaniesSequentially = async (
   companies,
   days,
   token,
-  onProgress = null
+  onProgress = null,
+  forceRefresh = false
 ) => {
   const results = {};
   
@@ -150,22 +157,24 @@ export const fetchMultipleCompaniesSequentially = async (
     const company = companies[i];
     
     try {
-      // Check cache first
-      const cached = getCachedPriceData(company.screenerId, days);
-      if (cached) {
-        results[company.screenerId] = cached;
-        if (onProgress) {
-          onProgress(i + 1, companies.length, company.name, true);
+      // Check client-side cache first (unless forced)
+      if (!forceRefresh) {
+        const cached = getCachedPriceData(company.screenerId, days);
+        if (cached) {
+          results[company.screenerId] = cached;
+          if (onProgress) {
+            onProgress(i + 1, companies.length, company.name, true);
+          }
+          // Small delay even for cached to avoid overwhelming
+          if (i < companies.length - 1) {
+            await new Promise((resolve) => setTimeout(resolve, 100));
+          }
+          continue;
         }
-        // Small delay even for cached to avoid overwhelming
-        if (i < companies.length - 1) {
-          await new Promise((resolve) => setTimeout(resolve, 100));
-        }
-        continue;
       }
 
-      // Fetch with retry
-      const data = await fetchPriceDataWithRetry(company.screenerId, days, token);
+      // Fetch with retry and optional force
+      const data = await fetchPriceDataWithRetry(company.screenerId, days, token, 5, 2000, forceRefresh);
       results[company.screenerId] = data;
       
       if (onProgress) {
@@ -212,7 +221,8 @@ export const fetchMultipleCompaniesSequentially = async (
           days,
           token,
           10, // More retries
-          3000 // Longer delay
+          3000, // Longer delay
+          forceRefresh
         );
         
         if (data.length > 0) {
